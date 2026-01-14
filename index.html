@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>100 Not Out – Score Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>100 Not Out</h1>
+    </header>
+
+    <main id="mainMenu">
+      <button id="newGameBtn">New Game</button>
+      <button id="addPlayerBtn">Add Players</button>
+      <button id="resetScoreBtn" class="danger">Reset Score</button>
+      <button id="addScoreBtn">Add Score</button>
+    </main>
+
+    <!-- The dialog element itself -->
+    <dialog id="playerModal">
+      <h3>Add Players</h3>
+      <input type="text" id="playerNameInput" placeholder="Player name" />
+      <div class="actions">
+        <button id="nextPlayerBtn">Next Player</button>
+        <button id="doneAddingBtn" class="secondary">Done</button>
+      </div>
+      <p id="playerList"></p>
+    </dialog>
+
+    <!-- Score Page -->
+    <main id="scorePage" class="hidden">
+      <table id="scoreTable"></table>
+    </main>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
