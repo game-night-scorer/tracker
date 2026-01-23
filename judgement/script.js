@@ -1,22 +1,34 @@
 import { state, resetGame, setTestData } from "../common/state.js";
-import { addPlayer, activePlayers } from "../common/game.js";
+import { addPlayer } from "../common/game.js";
 import { saveGame, loadGames } from "../common/storage.js";
 import { show, hide } from "../common/ui.js";
 
+const key = "score-tracker-judgement";
 const modal = document.getElementById("playerModal");
 const scorePage = document.getElementById("scorePage");
 const scoreTable = document.getElementById("scoreTable");
 const roundTable = document.getElementById("roundTable");
 const suitImage = document.getElementById("suit");
 const suits = ["Spades", "Diamonds", "Clubs", "Hearts"];
-let maxRound,dealer;
+let maxRound, dealer, cards;
 let imgCount = 0;
-let round = 0;
-let cards;
 let direction = true;
+let loadedGame = loadGames(key);
+
+if (loadedGame?.players?.length > 0) {
+  state.players = loadedGame.players;
+  state.scores = loadedGame.scores;
+  state.rounds = loadedGame.rounds;
+  state.dealer = loadedGame.dealer;
+  setGameRounds();
+  show(scorePage);
+  renderRoundSuit();
+  renderTable();
+}
 
 document.getElementById("newGameBtn").onclick = () => {
   resetGame();
+  imgCount = 0;
   hide(scorePage);
   modal.showModal();
 };
@@ -32,9 +44,9 @@ document.getElementById("resetScoreBtn").onclick = () => {
     state.scores[p] = [];
   });
   imgCount = 0;
-  round = 0;
-  renderRoundSuit(roundTable);
-  renderTable(scoreTable);
+  state.rounds = 0;
+  renderRoundSuit();
+  renderTable();
 };
 
 document.getElementById("nextPlayerBtn").onclick = () => {
@@ -52,13 +64,12 @@ document.getElementById("doneAddingBtn").onclick = () => {
     alert("Please add at least two player!");
   } else {
     modal.close("playerModal");
-    maxRound = Math.trunc(52 / state.players.length);
-    const asc = Array.from({ length: maxRound }, (_, i) => i + 1);
-    const dsc = [...asc].reverse();
-    cards = asc.concat(dsc);
+
+    setGameRounds();
     show(scorePage);
-    renderRoundSuit(roundTable);
-    renderTable(scoreTable);
+    renderRoundSuit();
+    renderTable();
+    saveGame(key, state);
   }
 };
 
@@ -71,7 +82,15 @@ document.getElementById("addScoreBtn").onclick = () => {
   addRound(scores);
   renderRoundSuit(roundTable);
   renderTable(scoreTable);
+  saveGame(key, state);
 };
+
+function setGameRounds() {
+  maxRound = Math.trunc(52 / state.players.length);
+  const asc = Array.from({ length: maxRound }, (_, i) => i + 1);
+  const dsc = [...asc].reverse();
+  cards = asc.concat(dsc);
+}
 
 function addRound(scores) {
   scores.forEach(({ player, score, check }) => {
@@ -79,38 +98,45 @@ function addRound(scores) {
       state.scores[player].push(score + 10);
     }
   });
+
   state.rounds++;
 }
 
-function renderRoundSuit(table) {
-  if (state.rounds===0){
-    const firstDealer = Math.floor(Math.random() * (state.players.length));
+function renderRoundSuit() {
+  if (state.rounds === 0) {
+    const firstDealer = Math.floor(Math.random() * state.players.length);
     dealer = firstDealer;
-  }else{
+  } else if (!dealer) {
+    dealer = state.players.indexOf(state.dealer);
+  } else {
     dealer = dealer % state.players.length;
   }
+
   imgCount = imgCount % suits.length;
   let cardNum;
-  if (round >= cards.length) {
+  if (state.rounds >= cards.length) {
     cardNum = "Game Over";
   } else {
-    cardNum = cards[round];
+    cardNum = cards[state.rounds];
   }
 
   let html = `<tbody>
     <tr>
       <th>Cards: ${cardNum}</th>
-      <th>Dealer: ${state.players[dealer]}</th>
-      <th><img src="../assets/${suits[imgCount]}.png" alt="${suits[imgCount]}" width="30" height="30"></th>
+      <th>Dealer: ${state.players[dealer] ?? state.dealer}</th>
+      <th><img src="../assets/${suits[imgCount]}.png" alt="${
+    suits[imgCount]
+  }" width="30" height="30"></th>
     </tr>
   </tbody>`;
-  table.innerHTML = html;
+  roundTable.innerHTML = html;
+
+  state.dealer = state.players[dealer];
   imgCount++;
-  round++;
   dealer++;
 }
 
-function renderTable(table) {
+function renderTable() {
   let html = `<tr><th>Player</th>`;
   html += `<th>Total</th>`;
   html += `<th>Round Score</th>`;
@@ -121,9 +147,11 @@ function renderTable(table) {
     html += `<tr>
       <td>${p}</td>
       <td>${total}</td>
-      <td><input class="inputScore" type="text" id=score_${[p]}></td>
+      <td><input class="inputScore" type="text" inputmode="numeric" pattern="[0-9]*" id=score_${[
+        p,
+      ]}></td>
       <td><input class="inputScore" type="checkbox" id=checkbox_${[p]}></td>
     </tr>`;
   });
-  table.innerHTML = html;
+  scoreTable.innerHTML = html;
 }
