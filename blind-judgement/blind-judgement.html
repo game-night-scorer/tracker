@@ -2,14 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>100 Not Out – Score Tracker</title>
+    <title>Judgement – Score Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../common/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
+
   <body>
     <header class="app-header">
       <button id="menuToggle" class="hamburger">☰</button>
-      <span class="title">100 Not Out</span>
+      <span class="title">Blind Judgement</span>
     </header>
 
     <nav id="menu" class="menu hidden">
@@ -24,16 +26,23 @@
     <div id="menuBackdrop" class="backdrop hidden"></div>
 
     <main id="mainMenu">
-      <button id="newGameBtn">New Game</button>
-      <button id="addPlayerBtn">Add Players</button>
-      <button id="resetScoreBtn" class="danger">Reset Score</button>
-      <button id="addScoreBtn">Add Score</button>
+      <div>
+        <button id="newGameBtn">New Game</button>
+        <button id="addPlayerBtn">Add Players</button>
+        <button id="resetScoreBtn" class="danger">Reset Score</button>
+        <div class="controls">
+          <button id="newRoundBtn">Add Prediction</button>
+          <button id="addScoreBtn" disabled>Add Score</button>
+        </div>
+      </div>
     </main>
 
     <!-- The dialog element itself -->
     <dialog class="playerModal" id="playerModal">
       <h3>Add Players</h3>
-      <p style="margin-top: 0; font-size: .75rem">*use space to add multiple names</p>
+      <p style="margin-top: 0; font-size: 0.75rem">
+        *use space to add multiple names
+      </p>
       <input type="text" id="playerNameInput" placeholder="Player names" />
       <div class="actions">
         <button id="nextPlayerBtn">Add</button>
@@ -42,8 +51,27 @@
       <p class="player-list" id="playerList"></p>
     </dialog>
 
+    <!-- Prediction Modal -->
+    <div id="predictionModal" class="modal hidden">
+      <div class="modal-content">
+        <table id="roundTableModal"></table>
+        <h3 id="currentPlayerName"></h3>
+        <p id="predictionWarning" class="warning hidden"></p>
+        <input type="number" id="predictionInput" min="0" />
+        <button id="confirmPredictionBtn">Confirm & Next Player</button>
+      </div>
+    </div>
+
+    <!-- Play Cards Overlay -->
+    <div id="playOverlay" class="modal hidden">
+      <div class="modal-content">
+        <h3>Play the cards</h3>
+        <button id="scoreRoundBtn">Score Round</button>
+      </div>
+    </div>
+
     <!-- Score Page -->
-    <main id="scorePage" class="hidden">
+    <main id="scorePage" class="scorePage hidden">
       <div>
         <table id="roundTable"></table>
         <table id="scoreTable"></table>

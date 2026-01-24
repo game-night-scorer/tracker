@@ -9,9 +9,21 @@
 </head>
 
 <body>
-  <header>
-    <h1>Judgement</h1>
+  <header class="app-header">
+    <button id="menuToggle" class="hamburger">☰</button>
+    <span class="title">Judgement</span>
   </header>
+
+  <nav id="menu" class="menu hidden">
+    <ul>
+      <li><a href="/index.html">🏠 Main Menu</a></li>
+      <li><a href="/100-not-out/100-not-out.html">100 Not Out</a></li>
+      <li><a href="/judgement/judgement.html">Judgement</a></li>
+      <li><a href="/blind-judgement/blind-judgement.html">Blind Judgement</a></li>
+    </ul>
+  </nav>
+
+  <div id="menuBackdrop" class="backdrop hidden"></div>
 
     <main id="mainMenu">
       <button id="newGameBtn">New Game</button>
@@ -23,10 +35,9 @@
   <!-- The dialog element itself -->
   <dialog class="playerModal" id="playerModal">
     <h3>Add Players</h3>
-    <p style="margin-top: 0; font-size: .75rem">*use space to add multiple names</p>
-    <input type="text" id="playerNameInput" placeholder="Player names" />
+    <input type="text" id="playerNameInput" placeholder="Player name" />
     <div class="actions">
-      <button id="nextPlayerBtn">Add</button>
+      <button id="nextPlayerBtn">Next Player</button>
       <button id="doneAddingBtn" class="secondary">Done</button>
     </div>
     <p class="player-list" id="playerList"></p>

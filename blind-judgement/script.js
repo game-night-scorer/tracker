@@ -3,14 +3,21 @@ import { addPlayer } from "../common/game.js";
 import { saveGame, loadGames } from "../common/storage.js";
 import { show, hide } from "../common/ui.js";
 
-const key = "score-tracker-judgement";
+const key = "score-tracker-blind-judgement";
 const modal = document.getElementById("playerModal");
+const scoreModal = document.getElementById("scoreModal");
 const scorePage = document.getElementById("scorePage");
 const scoreTable = document.getElementById("scoreTable");
 const roundTable = document.getElementById("roundTable");
 const suitImage = document.getElementById("suit");
+const predictionModal = document.getElementById("predictionModal");
+const predictionInput = document.getElementById("predictionInput");
+const confirmPredictionBtn = document.getElementById("confirmPredictionBtn");
+const playOverlay = document.getElementById("playOverlay");
+const scoreRoundBtn = document.getElementById("scoreRoundBtn");
+
 const suits = ["Spades", "Diamonds", "Clubs", "Hearts"];
-let maxRound, dealer, cards;
+let maxRound, dealer, cards, cardNum;
 let imgCount = 0;
 let direction = true;
 let loadedGame = loadGames(key);
@@ -34,7 +41,7 @@ document.getElementById("newGameBtn").onclick = () => {
 };
 
 document.getElementById("addPlayerBtn").onclick = () => {
-  // setTestData();
+  setTestData();
   modal.showModal();
   document.getElementById("playerList").textContent = state.players.join(", ");
 };
@@ -73,7 +80,32 @@ document.getElementById("doneAddingBtn").onclick = () => {
   }
 };
 
+document.getElementById("newRoundBtn").onclick = startNewRound;
+
+function startNewRound() {
+  state.currentRoundPredictions = {};
+  state.currentPlayerIndex = (dealer + 1) % state.players.length;
+  addScoreBtn.disabled = true;
+  showPredictionModal();
+}
+
+function showPredictionModal() {
+  const player = state.players[state.currentPlayerIndex];
+  currentPlayerName.textContent = `${player}, enter your prediction`;
+  predictionInput.value = "";
+  document.getElementById("predictionWarning").classList.add("hidden");
+  predictionModal.classList.remove("hidden");
+  predictionInput.focus();
+}
+
+// --- PLAY OVERLAY ---
+scoreRoundBtn.onclick = () => {
+  playOverlay.classList.add("hidden");
+  addScoreBtn.disabled = false;
+};
+
 document.getElementById("addScoreBtn").onclick = () => {
+  renderRoundSuit();
   const scores = state.players.map((p) => ({
     player: p,
     score: parseInt(document.getElementById("score_" + p)?.value) || 0,
@@ -86,7 +118,6 @@ document.getElementById("addScoreBtn").onclick = () => {
   renderRoundSuit(roundTable);
   renderTable(scoreTable);
   saveGame(key, state);
-
 };
 
 function setGameRounds() {
@@ -117,7 +148,7 @@ function renderRoundSuit() {
   }
 
   imgCount = imgCount % suits.length;
-  let cardNum;
+
   if (state.rounds >= cards.length) {
     cardNum = "Game Over";
   } else {
@@ -134,6 +165,8 @@ function renderRoundSuit() {
     </tr>
   </tbody>`;
   roundTable.innerHTML = html;
+  roundTableModal.innerHTML = html;
+
 }
 
 function renderTable() {
@@ -155,6 +188,76 @@ function renderTable() {
   });
   scoreTable.innerHTML = html;
 }
+
+function isLastPredictor() {
+  return (
+    Object.keys(state.currentRoundPredictions).length ===
+    state.players.length - 1
+  );
+}
+
+function getSumOfPredictions() {
+  return Object.values(state.currentRoundPredictions).reduce(
+    (a, b) => a + b,
+    0
+  );
+}
+
+function validateLastPrediction(value) {
+  const warning = document.getElementById("predictionWarning");
+  const sumOthers = getSumOfPredictions();
+  const remaining = cardNum - sumOthers;
+
+  warning.classList.add("hidden");
+  warning.textContent = "";
+
+  // If prediction already exceeds round number → always allowed
+  if (value > cardNum) return true;
+
+  // Case: remaining === 0 → cannot predict 0
+  if (remaining === 0 && value === 0) {
+    warning.textContent = "Your prediction cannot be zero this round.";
+    warning.classList.remove("hidden");
+    return false;
+  }
+
+  // Case: remaining > 0 → cannot equal remaining
+  if (remaining > 0 && value === remaining) {
+    warning.textContent = `Your prediction cannot be ${remaining}.`;
+    warning.classList.remove("hidden");
+    return false;
+  }
+
+  return true;
+}
+
+confirmPredictionBtn.onclick = () => {
+  const value = parseInt(predictionInput.value, 10) || 0;
+  const player = state.players[state.currentPlayerIndex];
+
+  // 🔴 enforce rule only for last player
+  if (isLastPredictor()) {
+    if (!validateLastPrediction(value)) {
+      return; // block advance
+    }
+  }
+
+  state.currentRoundPredictions[player] = value;
+  document.getElementById("score_" + player).value = value;
+
+  state.currentPlayerIndex =
+    (state.currentPlayerIndex + 1) % state.players.length;
+
+  if (
+    Object.keys(state.currentRoundPredictions).length === state.players.length
+  ) {
+    predictionModal.classList.add("hidden");
+    playOverlay.classList.remove("hidden");
+    return;
+  }
+
+  showPredictionModal();
+};
 
 const menuToggle = document.getElementById('menuToggle');
 const menu = document.getElementById('menu');

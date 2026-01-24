@@ -1,0 +1,85 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+}
+
+header {
+  background: black;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+main {
+  align-items: center;
+  justify-content: center;
+  display: flexbox;
+}
+
+.controls {
+  text-align: center;
+}
+
+button {
+  padding: 0.6rem 1rem;
+  margin: 0.3rem;
+  border: none;
+  border-radius: 4px;
+  background: #007bff;
+  color: white;
+}
+
+table {
+  width: 90%;
+  background: white;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Prediction modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  width: 90%;
+  max-width: 300px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Play overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.warning {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}

@@ -118,3 +118,23 @@ function renderTable() {
   });
   scoreTable.innerHTML = html;
 }
+
+const menuToggle = document.getElementById('menuToggle');
+const menu = document.getElementById('menu');
+const backdrop = document.getElementById('menuBackdrop');
+
+menuToggle.onclick = () => {
+  menu.classList.remove('hidden');
+  backdrop.classList.remove('hidden');
+};
+
+backdrop.onclick = closeMenu;
+
+menu.querySelectorAll('a').forEach(link => {
+  link.onclick = closeMenu;
+});
+
+function closeMenu() {
+  menu.classList.add('hidden');
+  backdrop.classList.add('hidden');
+}
